@@ -105,7 +105,7 @@ jobs:
         # Upload coverage from a single canonical combination (Chromium, ClickHouse
         # latest) so Codecov receives exactly one upload per flag.
         if: ${{ github.triggering_actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && matrix.browser == 'chromium' && matrix.clickhouse == 'latest' }}
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6.0.2
+        uses: codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4 # v7.1.0
         with:
           name: web-all-single
           flags: web-all-single
@@ -159,7 +159,7 @@ jobs:
         # Upload coverage from a single canonical combination (Chromium, ClickHouse
         # latest) so Codecov receives exactly one upload per flag.
         if: ${{ github.triggering_actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && matrix.browser == 'chromium' && matrix.clickhouse == 'latest' }}
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6.0.2
+        uses: codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4 # v7.1.0
         with:
           name: web-integration-cluster
           flags: web-integration-cluster
@@ -209,7 +209,7 @@ jobs:
         # Upload coverage from a single canonical combination (Chromium) so Codecov
         # receives exactly one upload per flag (see codecov.yml).
         if: ${{ github.triggering_actor != 'dependabot[bot]' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && matrix.browser == 'chromium' }}
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6.0.2
+        uses: codecov/codecov-action@0b35c9ecc4f0529d0eb674914510c22f85b196b4 # v7.1.0
         with:
           name: web-integration-cloud
           flags: web-integration-cloud
