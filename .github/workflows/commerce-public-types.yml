@@ -1,0 +1,83 @@
+# Fork-only experiment. Do not include this workflow in the upstream patch.
+name: Commerce public-type validation
+on:
+  push:
+    branches: [ci/commerce-public-types]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: commerce-public-types-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    if: github.repository == 'kvnloo/clickhouse-js'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - mode: base
+            revision: 847809e6425a18f96fa208ed4e29da7615da3f65
+          - mode: head
+            revision: 23be63f3f41c3077aba25a4d10c3a0745bcfcab2
+    env:
+      CI: 'true'
+      HUSKY: '0'
+    steps:
+      - name: Check out the fork-only experiment
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: control
+          persist-credentials: false
+      - name: Check out the exact upstream revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: ClickHouse/clickhouse-js
+          ref: ${{ matrix.revision }}
+          path: source
+          persist-credentials: false
+      - name: Set up the repository's CI Node version
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 24
+      - name: Verify source identity and apply only the candidate patch
+        working-directory: source
+        env:
+          EXPECTED_REVISION: ${{ matrix.revision }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_REVISION"
+          git apply --check ../control/.commerce-validation/public-type-contract.patch
+          git apply ../control/.commerce-validation/public-type-contract.patch
+      - name: Install the checked-in dependency lock
+        working-directory: source
+        run: npm ci
+      - name: Build the actual packages
+        working-directory: source
+        run: npm run build
+      - name: Check expected baseline failure or head plus export mutations
+        env:
+          MODE: ${{ matrix.mode }}
+        run: node control/.commerce-validation/check-public-types.cjs "$MODE" source
+      - name: Run existing head code-quality and unit checks
+        if: matrix.mode == 'head'
+        working-directory: source
+        run: |
+          set -euo pipefail
+          npm run typecheck
+          npm run lint
+          npm run prettier:check
+          npm run test:node:unit
+      - name: Record compiler evidence
+        if: always()
+        env:
+          MODE: ${{ matrix.mode }}
+        run: |
+          receipt="$RUNNER_TEMP/public-types-$MODE-receipt.json"
+          if test -f "$receipt"; then
+            printf '### %s consumer evidence\n\n```json\n' "$MODE" >> "$GITHUB_STEP_SUMMARY"
+            cat "$receipt" >> "$GITHUB_STEP_SUMMARY"
+            printf '\n```\n' >> "$GITHUB_STEP_SUMMARY"
+          fi

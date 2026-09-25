@@ -1,0 +1,61 @@
+diff --git a/package.json b/package.json
+--- a/package.json
++++ b/package.json
+@@ -17,7 +17,7 @@
+     "node": ">=20.19.0"
+   },
+   "scripts": {
+-    "typecheck": "npm --workspaces run typecheck",
++    "typecheck": "npm --workspaces run typecheck && tsc -p tests/public-types/tsconfig.json",
+     "lint": "npm --workspaces run lint",
+     "lint:fix": "npm --workspaces run lint:fix",
+     "build": "npm run --workspaces build",
+diff --git a/tests/public-types/exports.ts b/tests/public-types/exports.ts
+new file mode 100644
+--- /dev/null
++++ b/tests/public-types/exports.ts
+@@ -0,0 +1,26 @@
++// Compile through the public package entrypoints, not private source paths.
++export type {
++  QueryParamsWithFormat,
++  ResultJSONType,
++  RowJSONType,
++  ResultStream,
++  PingParams,
++  PingParamsWithEndpoint,
++  PingParamsWithSelectQuery,
++  ClickHouseSummary,
++  WithClickHouseSummary,
++  WithResponseHeaders,
++} from "@clickhouse/client";
++
++export type {
++  QueryParamsWithFormat as WebQueryParamsWithFormat,
++  ResultJSONType as WebResultJSONType,
++  RowJSONType as WebRowJSONType,
++  ResultStream as WebResultStream,
++  PingParams as WebPingParams,
++  PingParamsWithEndpoint as WebPingParamsWithEndpoint,
++  PingParamsWithSelectQuery as WebPingParamsWithSelectQuery,
++  ClickHouseSummary as WebClickHouseSummary,
++  WithClickHouseSummary as WebWithClickHouseSummary,
++  WithResponseHeaders as WebWithResponseHeaders,
++} from "@clickhouse/client-web";
+diff --git a/tests/public-types/tsconfig.json b/tests/public-types/tsconfig.json
+new file mode 100644
+--- /dev/null
++++ b/tests/public-types/tsconfig.json
+@@ -0,0 +1,13 @@
++{
++  "compilerOptions": {
++    "target": "ES2022",
++    "module": "Node16",
++    "moduleResolution": "Node16",
++    "strict": true,
++    "noEmit": true,
++    "skipLibCheck": false,
++    "lib": ["ES2022", "DOM", "DOM.Iterable"],
++    "types": ["node"]
++  },
++  "files": ["exports.ts"]
++}
