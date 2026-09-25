@@ -17,7 +17,7 @@
     "node": ">=20.19.0"
   },
   "scripts": {
-    "typecheck": "npm --workspaces run typecheck",
+    "typecheck": "npm --workspaces run typecheck && tsc -p tests/public-types/tsconfig.json",
     "lint": "npm --workspaces run lint",
     "lint:fix": "npm --workspaces run lint:fix",
     "build": "npm run --workspaces build",
